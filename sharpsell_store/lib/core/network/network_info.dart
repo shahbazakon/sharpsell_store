@@ -8,37 +8,10 @@ abstract class NetworkInfo {
 }
 
 class NetworkInfoImpl implements NetworkInfo {
-  final InternetConnectionChecker? connectionChecker;
+  final InternetConnectionChecker connectionChecker;
 
   NetworkInfoImpl(this.connectionChecker);
 
   @override
-  Future<bool> get isConnected async {
-    try {
-      // For web platform, always return true since InternetConnectionChecker doesn't support web
-      if (kIsWeb) {
-        developer.log(
-          'Running on web platform, assuming network connection is available',
-        );
-        return true;
-      }
-
-      // For mobile platforms, use the connection checker
-      if (connectionChecker != null) {
-        final hasConnection = await connectionChecker!.hasConnection;
-        developer.log('Network connection check result: $hasConnection');
-        return hasConnection;
-      }
-
-      // Default fallback
-      developer.log(
-        'No connection checker available, assuming network is available',
-      );
-      return true;
-    } catch (e) {
-      developer.log('Error checking network connection: $e');
-      // In case of error, assume network is available to prevent app from failing
-      return true;
-    }
-  }
+  Future<bool> get isConnected => connectionChecker.hasConnection;
 }

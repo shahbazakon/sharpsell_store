@@ -1,107 +1,45 @@
-import 'package:dio/dio.dart';
-import 'dart:developer' as developer;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import '../error/exceptions.dart';
 import '../utils/constants.dart';
 
 class ApiService {
-  final Dio _dio;
+  final http.Client client;
 
-  ApiService(this._dio) {
-    _dio.options.baseUrl = AppConstants.baseUrl;
-    _dio.options.connectTimeout = const Duration(seconds: 15);
-    _dio.options.receiveTimeout = const Duration(seconds: 15);
-    _dio.options.headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
+  ApiService({required this.client});
 
-    // Add logging interceptor for debugging
-    _dio.interceptors.add(
-      LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
-        logPrint: (object) => developer.log(object.toString()),
-      ),
-    );
-  }
+  Future<dynamic> get(String endpoint,
+      {Map<String, dynamic>? queryParams}) async {
+    final url = Uri.parse('${AppConstants.baseUrl}$endpoint')
+        .replace(queryParameters: queryParams);
 
-  // Get all products with pagination
-  Future<List<dynamic>> getProducts({int limit = 20, int offset = 0}) async {
     try {
-      developer.log('Fetching products with limit: $limit, offset: $offset');
-      final response = await _dio.get(
-        '/products',
-        queryParameters: {'limit': limit, 'offset': offset},
-      );
-      return response.data;
+      final response = await client.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(milliseconds: AppConstants.connectionTimeout));
+
+      return _processResponse(response);
     } catch (e) {
-      developer.log('Error fetching products: $e');
-      throw _handleError(e);
+      throw ServerException(message: e.toString());
     }
   }
 
-  // Get product details by ID
-  Future<dynamic> getProductById(String id) async {
-    try {
-      developer.log('Fetching product with ID: $id');
-      final response = await _dio.get('/products/$id');
-      return response.data;
-    } catch (e) {
-      developer.log('Error fetching product details: $e');
-      throw _handleError(e);
+  dynamic _processResponse(http.Response response) {
+    switch (response.statusCode) {
+      case 200:
+        return json.decode(response.body);
+      case 400:
+        throw ServerException(message: 'Bad request');
+      case 401:
+      case 403:
+        throw ServerException(message: 'Unauthorized');
+      case 404:
+        throw ServerException(message: 'Not found');
+      case 500:
+      default:
+        throw ServerException(message: AppConstants.serverErrorMessage);
     }
-  }
-
-  // Get similar products
-  Future<List<dynamic>> getSimilarProducts(String productId) async {
-    try {
-      developer.log('Fetching similar products for ID: $productId');
-      final response = await _dio.get('/products/$productId/related');
-      return response.data;
-    } catch (e) {
-      developer.log('Error fetching similar products: $e');
-      throw _handleError(e);
-    }
-  }
-
-  // Get all categories
-  Future<List<dynamic>> getCategories({int limit = 20}) async {
-    try {
-      developer.log('Fetching categories with limit: $limit');
-      final response = await _dio.get(
-        '/categories',
-        queryParameters: {'limit': limit},
-      );
-      return response.data;
-    } catch (e) {
-      developer.log('Error fetching categories: $e');
-      throw _handleError(e);
-    }
-  }
-
-  // Error handling
-  Exception _handleError(dynamic error) {
-    if (error is DioException) {
-      switch (error.type) {
-        case DioExceptionType.connectionTimeout:
-        case DioExceptionType.sendTimeout:
-        case DioExceptionType.receiveTimeout:
-          return Exception('Connection timeout. Please try again later.');
-        case DioExceptionType.badResponse:
-          final statusCode = error.response?.statusCode;
-          final responseData = error.response?.data;
-          return Exception(
-            'Error $statusCode: ${responseData ?? 'Unknown error'}',
-          );
-        case DioExceptionType.cancel:
-          return Exception('Request was cancelled');
-        default:
-          return Exception('Network error: ${error.message}');
-      }
-    }
-    return Exception('Unexpected error: $error');
   }
 }

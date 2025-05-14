@@ -74,11 +74,49 @@ class ErrorApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
       ),
       debugShowCheckedModeBanner: false,
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'Failed to initialize the app. Please restart.',
-            style: TextStyle(fontSize: 18),
+      home: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Failed to initialize the app',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Please restart the application',
+                  style: TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    // This would ideally restart the app
+                    // But for simplicity, just show a message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Please close and reopen the app manually'),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Restart App'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
