@@ -41,7 +41,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Details'),
+        title: const Text('Back'),
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: BlocBuilder<ProductDetailsBloc, ProductDetailsState>(
         builder: (context, state) {
@@ -52,14 +58,28 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Product Image
-                  SizedBox(
-                    width: double.infinity,
-                    height: 300,
-                    child: Image.network(
-                      state.product.imageUrl,
-                      fit: BoxFit.cover,
-                    ),
+                  // Product Image with X placeholder
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 300,
+                        color: Colors.grey[200],
+                      ),
+                      CustomPaint(
+                        size: const Size(300, 300),
+                        painter: CrossPainter(),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 300,
+                        child: Image.network(
+                          state.product.imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ],
                   ),
 
                   // Product Info
@@ -72,10 +92,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              state.product.categoryName,
+                              'Category',
                               style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[600],
+                                fontSize: 14,
                               ),
                             ),
                             ElevatedButton(
@@ -100,58 +120,52 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   ),
                                 );
                               },
-                              child: const Text('Add to Cart'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text('Add'),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
                         Text(
                           state.product.name,
-                          style: Theme.of(context).textTheme.displayMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '₹ ${state.product.price.toStringAsFixed(2)}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Description',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
                         Text(
                           state.product.description,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
+                            color: Colors.grey[700],
                           ),
                         ),
                       ],
                     ),
                   ),
 
+                  const Divider(),
+
                   // Similar Products
                   if (state.similarProducts.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
                       child: Text(
                         'Similar Products',
-                        style: TextStyle(
-                          fontSize: 18,
+                        style: const TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
                     SizedBox(
-                      height: 280,
+                      height: 240,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -213,4 +227,29 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
+}
+
+// Custom painter to draw the crossed lines (X)
+class CrossPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 1;
+
+    // Draw diagonal lines to form an X
+    canvas.drawLine(
+      Offset(0, 0),
+      Offset(size.width, size.height),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width, 0),
+      Offset(0, size.height),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

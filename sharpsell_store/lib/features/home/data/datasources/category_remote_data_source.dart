@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_service.dart';
 import '../models/category_model.dart';

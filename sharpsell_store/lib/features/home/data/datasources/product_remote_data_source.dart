@@ -1,13 +1,13 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_service.dart';
 import '../models/product_model.dart';
 
 abstract class ProductRemoteDataSource {
   Future<List<ProductModel>> getProducts({int limit = 20, int offset = 0});
-  Future<List<ProductModel>> getProductsByCategory(String categoryId);
-  Future<ProductModel> getProductById(String id);
-  Future<List<ProductModel>> getSimilarProducts(String productId);
+  Future<List<ProductModel>> getProductsByCategory(int categoryId);
+  Future<ProductModel> getProductById(int id);
+  Future<List<ProductModel>> getSimilarProducts(int productId);
   Future<List<ProductModel>> searchProducts(String query);
 }
 
@@ -30,7 +30,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<List<ProductModel>> getProductsByCategory(String categoryId) async {
+  Future<List<ProductModel>> getProductsByCategory(int categoryId) async {
     try {
       // API doesn't have a direct endpoint for products by category
       // So we'll get all products and filter them
@@ -44,7 +44,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<ProductModel> getProductById(String id) async {
+  Future<ProductModel> getProductById(int id) async {
     try {
       final data = await apiService.getProductById(id);
       return ProductModel.fromJson(data);
@@ -54,7 +54,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<List<ProductModel>> getSimilarProducts(String productId) async {
+  Future<List<ProductModel>> getSimilarProducts(int productId) async {
     try {
       final data = await apiService.getSimilarProducts(productId);
       return data

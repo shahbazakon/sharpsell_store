@@ -41,7 +41,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<Failure, List<Product>>> getProductsByCategory(
-      String categoryId) async {
+      int categoryId) async {
     if (await networkInfo.isConnected) {
       try {
         final remoteProducts =
@@ -62,7 +62,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Product>> getProductById(String id) async {
+  Future<Either<Failure, Product>> getProductById(int id) async {
     if (await networkInfo.isConnected) {
       try {
         final remoteProduct = await remoteDataSource.getProductById(id);
@@ -82,7 +82,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<Failure, List<Product>>> getSimilarProducts(
-      String productId) async {
+      int productId) async {
     if (await networkInfo.isConnected) {
       try {
         final similarProducts =

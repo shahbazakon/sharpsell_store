@@ -14,7 +14,9 @@ import 'features/cart/domain/usecases/get_cart.dart';
 import 'features/cart/domain/usecases/remove_from_cart.dart';
 import 'features/cart/presentation/bloc/cart_bloc.dart';
 import 'features/home/data/datasources/category_remote_data_source.dart';
+import 'features/home/data/datasources/category_local_data_source.dart';
 import 'features/home/data/datasources/product_remote_data_source.dart';
+import 'features/home/data/datasources/product_local_data_source.dart';
 import 'features/home/data/repositories/category_repository_impl.dart';
 import 'features/home/data/repositories/product_repository_impl.dart';
 import 'features/home/domain/repositories/category_repository.dart';
@@ -46,6 +48,7 @@ Future<void> init() async {
   sl.registerLazySingleton<CategoryRepository>(
     () => CategoryRepositoryImpl(
       remoteDataSource: sl(),
+      localDataSource: sl(),
       networkInfo: sl(),
     ),
   );
@@ -53,6 +56,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(
       remoteDataSource: sl(),
+      localDataSource: sl(),
       networkInfo: sl(),
     ),
   );
@@ -62,8 +66,16 @@ Future<void> init() async {
     () => CategoryRemoteDataSourceImpl(apiService: sl()),
   );
 
+  sl.registerLazySingleton<CategoryLocalDataSource>(
+    () => CategoryLocalDataSourceImpl(sharedPreferences: sl()),
+  );
+
   sl.registerLazySingleton<ProductRemoteDataSource>(
     () => ProductRemoteDataSourceImpl(apiService: sl()),
+  );
+
+  sl.registerLazySingleton<ProductLocalDataSource>(
+    () => ProductLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
   //! Features - Product Details

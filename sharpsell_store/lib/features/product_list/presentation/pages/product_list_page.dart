@@ -51,7 +51,19 @@ class _ProductListPageState extends State<ProductListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category.name),
+        title: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios, size: 20),
+              onPressed: () => Navigator.pop(context),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+            const SizedBox(width: 8),
+            Text(widget.category.name),
+          ],
+        ),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -95,7 +107,7 @@ class _ProductListPageState extends State<ProductListPage> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.7,
+                      childAspectRatio: 0.75,
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 16,
                     ),

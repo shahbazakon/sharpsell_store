@@ -9,8 +9,8 @@ import '../models/product_model.dart';
 abstract class ProductLocalDataSource {
   Future<List<ProductModel>> getLastProducts();
   Future<void> cacheProducts(List<ProductModel> productsToCache);
-  Future<ProductModel> getProductById(String id);
-  Future<List<ProductModel>> getProductsByCategory(String categoryId);
+  Future<ProductModel> getProductById(int id);
+  Future<List<ProductModel>> getProductsByCategory(int categoryId);
 }
 
 class ProductLocalDataSourceImpl implements ProductLocalDataSource {
@@ -42,7 +42,7 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
   }
 
   @override
-  Future<ProductModel> getProductById(String id) async {
+  Future<ProductModel> getProductById(int id) async {
     final products = await getLastProducts();
     try {
       return products.firstWhere((product) => product.id == id);
@@ -52,7 +52,7 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
   }
 
   @override
-  Future<List<ProductModel>> getProductsByCategory(String categoryId) async {
+  Future<List<ProductModel>> getProductsByCategory(int categoryId) async {
     final products = await getLastProducts();
     return products
         .where((product) => product.categoryId == categoryId)
