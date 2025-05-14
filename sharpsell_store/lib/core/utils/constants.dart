@@ -2,7 +2,7 @@ class AppConstants {
   static const String appName = 'Sharpsell Store';
 
   // API Constants
-  static const String baseUrl = 'https://api.sharpsellstore.com';
+  static const String baseUrl = 'https://api.escuelajs.co/api/v1';
 
   // Cache Keys
   static const String cachedCategoriesKey = 'CACHED_CATEGORIES';

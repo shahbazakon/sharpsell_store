@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import '../../domain/entities/product.dart';
 import 'category_model.dart';
 
@@ -25,20 +26,55 @@ class ProductModel extends Product {
        );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
-    final List<String> imagesList = List<String>.from(json['images'] ?? []);
-    final String firstImage = imagesList.isNotEmpty ? imagesList[0] : '';
+    try {
+      // Extract images
+      List<String> imagesList = [];
+      if (json['images'] != null) {
+        imagesList = List<String>.from(json['images']);
+      }
 
-    return ProductModel(
-      id: json['id'].toString(),
-      name: json['title'] ?? '',
-      description: json['description'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
-      images: imagesList,
-      imageUrl: firstImage,
-      categoryId: json['category']?['id']?.toString() ?? '',
-      categoryName: json['category']?['name'] ?? '',
-      slug: json['slug'] ?? '',
-    );
+      // Extract category data
+      String categoryId = '';
+      String categoryName = '';
+      if (json['category'] != null &&
+          json['category'] is Map<String, dynamic>) {
+        final categoryJson = json['category'] as Map<String, dynamic>;
+        categoryId = categoryJson['id']?.toString() ?? '';
+        categoryName = categoryJson['name']?.toString() ?? '';
+      }
+
+      return ProductModel(
+        id: json['id']?.toString() ?? '',
+        name: json['title']?.toString() ?? '',
+        description: json['description']?.toString() ?? '',
+        price:
+            (json['price'] != null) ? (json['price'] as num).toDouble() : 0.0,
+        images: imagesList,
+        imageUrl:
+            imagesList.isNotEmpty
+                ? imagesList[0]
+                : 'https://via.placeholder.com/400',
+        categoryId: categoryId,
+        categoryName: categoryName,
+        slug: json['slug']?.toString() ?? '',
+      );
+    } catch (e) {
+      developer.log('Error parsing product: $e');
+      developer.log('JSON data: $json');
+
+      // Return a fallback product model with minimal data
+      return ProductModel(
+        id: json['id']?.toString() ?? 'unknown',
+        name: json['title']?.toString() ?? 'Unknown Product',
+        description: 'No description available',
+        price: 0.0,
+        images: const [],
+        imageUrl: 'https://via.placeholder.com/400',
+        categoryId: '',
+        categoryName: '',
+        slug: '',
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -48,8 +84,8 @@ class ProductModel extends Product {
       'description': description,
       'price': price,
       'images': images,
-      'category': {'id': categoryId, 'name': categoryName},
       'slug': slug,
+      'category': {'id': categoryId, 'name': categoryName},
     };
   }
 }

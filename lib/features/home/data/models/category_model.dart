@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import '../../domain/entities/category.dart';
 
 class CategoryModel extends Category {
@@ -12,12 +13,25 @@ class CategoryModel extends Category {
   }) : super(id: id, name: name, imageUrl: image);
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
-    return CategoryModel(
-      id: json['id'].toString(),
-      name: json['name'],
-      image: json['image'],
-      slug: json['slug'],
-    );
+    try {
+      return CategoryModel(
+        id: json['id']?.toString() ?? '',
+        name: json['name']?.toString() ?? '',
+        image: json['image']?.toString() ?? 'https://via.placeholder.com/400',
+        slug: json['slug']?.toString() ?? '',
+      );
+    } catch (e) {
+      developer.log('Error parsing category: $e');
+      developer.log('JSON data: $json');
+
+      // Return a fallback category model
+      return const CategoryModel(
+        id: 'unknown',
+        name: 'Unknown Category',
+        image: 'https://via.placeholder.com/400',
+        slug: '',
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
