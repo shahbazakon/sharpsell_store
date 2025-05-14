@@ -4,12 +4,11 @@ import '../../../../core/utils/constants.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../../cart/presentation/bloc/cart_bloc.dart';
 import '../../../cart/presentation/bloc/cart_event.dart';
+import '../../../cart/presentation/pages/cart_page.dart';
 import '../../../home/domain/entities/product.dart';
 import '../bloc/product_details_bloc.dart';
 import '../bloc/product_details_event.dart';
 import '../bloc/product_details_state.dart';
-import '../widgets/product_image_slider.dart';
-import '../widgets/similar_products_list.dart';
 
 class ProductDetailsPage extends StatelessWidget {
   final String productId;
@@ -33,7 +32,10 @@ class ProductDetailsPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              Navigator.pushNamed(context, '/cart');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CartPage()),
+              );
             },
           ),
         ],
@@ -72,8 +74,19 @@ class ProductDetailsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Images
-          ProductImageSlider(images: product.images),
+          // Product Image
+          AspectRatio(
+            aspectRatio: 1,
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Center(
+                child: Icon(Icons.image, color: Colors.grey[400], size: 80),
+              ),
+            ),
+          ),
 
           // Product Info
           Padding(
@@ -95,14 +108,6 @@ class ProductDetailsPage extends StatelessWidget {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Category: ${product.categoryName}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -137,9 +142,83 @@ class ProductDetailsPage extends StatelessWidget {
           ),
 
           // Similar Products
-          if (state.similarProducts.isNotEmpty)
-            SimilarProductsList(products: state.similarProducts),
+          if (state.similarProducts.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Similar Products',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.all(8),
+                itemCount: state.similarProducts.length,
+                itemBuilder: (context, index) {
+                  final similarProduct = state.similarProducts[index];
+                  return _buildSimilarProductCard(context, similarProduct);
+                },
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildSimilarProductCard(BuildContext context, Product product) {
+    return Container(
+      width: 160,
+      margin: const EdgeInsets.all(8),
+      child: InkWell(
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailsPage(productId: product.id),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product Image
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Center(
+                  child: Icon(Icons.image, color: Colors.grey[400], size: 40),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            // Product Name
+            Text(
+              product.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // Product Price
+            Text(
+              '\$${product.price.toStringAsFixed(2)}',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -162,7 +241,10 @@ class ProductDetailsPage extends StatelessWidget {
         action: SnackBarAction(
           label: 'VIEW CART',
           onPressed: () {
-            Navigator.pushNamed(context, '/cart');
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CartPage()),
+            );
           },
         ),
       ),

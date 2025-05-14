@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/constants.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
-import '../../../product_list/presentation/pages/product_list_page.dart';
+import '../../../home/presentation/bloc/product/product_bloc.dart';
+import '../../../home/presentation/bloc/product/product_event.dart';
+import '../../../home/presentation/bloc/product/product_state.dart';
 import '../../../product_details/presentation/pages/product_details_page.dart';
-import '../bloc/category/category_bloc.dart';
-import '../bloc/category/category_event.dart';
-import '../bloc/category/category_state.dart';
-import '../bloc/product/product_bloc.dart';
-import '../bloc/product/product_event.dart';
-import '../bloc/product/product_state.dart';
-import '../widgets/category_list.dart';
-import '../widgets/product_grid.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class ProductListPage extends StatefulWidget {
+  final String categoryId;
+  final String categoryName;
+
+  const ProductListPage({
+    Key? key,
+    required this.categoryId,
+    required this.categoryName,
+  }) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ProductListPage> createState() => _ProductListPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  String? _selectedCategoryId;
+class _ProductListPageState extends State<ProductListPage> {
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
 
@@ -29,6 +29,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+
+    // Load products for this category when page is opened
+    context.read<ProductBloc>().add(
+          GetProductsByCategoryEvent(categoryId: widget.categoryId),
+        );
   }
 
   @override
@@ -44,15 +49,9 @@ class _HomePageState extends State<HomePage> {
         _scrollController.position.maxScrollExtent - 200) {
       _isLoadingMore = true;
 
-      if (_selectedCategoryId != null) {
-        context.read<ProductBloc>().add(
-              LoadMoreProductsByCategoryEvent(
-                categoryId: _selectedCategoryId!,
-              ),
-            );
-      } else {
-        context.read<ProductBloc>().add(LoadMoreProductsEvent());
-      }
+      context.read<ProductBloc>().add(
+            LoadMoreProductsByCategoryEvent(categoryId: widget.categoryId),
+          );
 
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
@@ -68,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.appName),
+        title: Text(widget.categoryName),
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart),
@@ -89,7 +88,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search',
+                hintText: 'Search in ${widget.categoryName}',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -97,103 +96,6 @@ class _HomePageState extends State<HomePage> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[200],
-              ),
-            ),
-          ),
-
-          // Categories Label
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              'Categories >',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-
-          // Categories
-          BlocBuilder<CategoryBloc, CategoryState>(
-            builder: (context, state) {
-              if (state is CategoryLoading) {
-                return const SizedBox(
-                  height: 120,
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              } else if (state is CategoryLoaded) {
-                return SizedBox(
-                  height: 120,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    itemCount: state.categories.length,
-                    itemBuilder: (context, index) {
-                      final category = state.categories[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductListPage(
-                                categoryId: category.id,
-                                categoryName: category.name,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 100,
-                          margin: const EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              // Category Image
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey[300]!),
-                                ),
-                                child: Center(
-                                  child: Icon(Icons.category,
-                                      color: Colors.grey[400]),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              // Category Name
-                              Text(
-                                category.name,
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              } else if (state is CategoryError) {
-                return SizedBox(
-                  height: 120,
-                  child: Center(
-                    child: Text('Error: ${state.message}'),
-                  ),
-                );
-              }
-              return const SizedBox(height: 120);
-            },
-          ),
-
-          // Products Label
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Text(
-              'Products',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -211,6 +113,12 @@ class _HomePageState extends State<HomePage> {
                   final products = state is ProductLoaded
                       ? state.products
                       : (state as ProductLoading).products;
+
+                  if (products.isEmpty) {
+                    return const Center(
+                      child: Text('No products found in this category'),
+                    );
+                  }
 
                   return Column(
                     children: [
@@ -251,7 +159,11 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: () {
-                            context.read<ProductBloc>().add(GetProductsEvent());
+                            context.read<ProductBloc>().add(
+                                  GetProductsByCategoryEvent(
+                                    categoryId: widget.categoryId,
+                                  ),
+                                );
                           },
                           child: const Text('Retry'),
                         ),
@@ -304,7 +216,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Product Name',
+                    product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

@@ -4,7 +4,6 @@ import '../../../../core/utils/constants.dart';
 import '../bloc/cart_bloc.dart';
 import '../bloc/cart_event.dart';
 import '../bloc/cart_state.dart';
-import '../widgets/cart_item_widget.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -77,17 +76,132 @@ class CartPage extends StatelessWidget {
             itemCount: state.items.length,
             itemBuilder: (context, index) {
               final item = state.items[index];
-              return CartItemWidget(
-                cartItem: item,
-                onRemove: () {
-                  context.read<CartBloc>().add(RemoveFromCartEvent(item.id));
-                },
-              );
+              return _buildCartItemCard(context, item);
             },
           ),
         ),
         _buildCheckoutSection(context, state),
       ],
+    );
+  }
+
+  Widget _buildCartItemCard(BuildContext context, dynamic cartItem) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product Image
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Center(
+                child: Icon(Icons.image, color: Colors.grey[400], size: 40),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Product Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cartItem.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${cartItem.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _buildQuantityButton(
+                        context,
+                        Icons.remove,
+                        () {
+                          if (cartItem.quantity > 1) {
+                            context.read<CartBloc>().add(
+                                  UpdateCartItemQuantityEvent(
+                                    cartItem.id,
+                                    cartItem.quantity - 1,
+                                  ),
+                                );
+                          } else {
+                            context.read<CartBloc>().add(
+                                  RemoveFromCartEvent(cartItem.id),
+                                );
+                          }
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          '${cartItem.quantity}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      _buildQuantityButton(
+                        context,
+                        Icons.add,
+                        () {
+                          context.read<CartBloc>().add(
+                                UpdateCartItemQuantityEvent(
+                                  cartItem.id,
+                                  cartItem.quantity + 1,
+                                ),
+                              );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Remove Button
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () {
+                context.read<CartBloc>().add(
+                      RemoveFromCartEvent(cartItem.id),
+                    );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuantityButton(
+    BuildContext context,
+    IconData icon,
+    VoidCallback onPressed,
+  ) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(icon, size: 16),
+        onPressed: onPressed,
+      ),
     );
   }
 
@@ -108,6 +222,34 @@ class CartPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Subtotal:',
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                '\$${state.totalPrice.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Shipping:',
+                style: TextStyle(fontSize: 16),
+              ),
+              const Text(
+                'Free',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          const Divider(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
