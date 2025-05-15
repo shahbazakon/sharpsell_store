@@ -20,14 +20,41 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+    // Add scroll listener for infinite scrolling
+    _scrollController.addListener(_onScroll);
+
     // Fetch products by category when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProductListProvider>(context, listen: false)
-          .getProductsByCategory(widget.categoryId);
+          .getProductsByCategory(widget.categoryId, refresh: true);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      final productProvider =
+          Provider.of<ProductListProvider>(context, listen: false);
+      if (!productProvider.isLoading &&
+          !productProvider.isLoadingMore &&
+          productProvider.hasMoreData) {
+        productProvider.getProductsByCategory(widget.categoryId);
+      }
+    }
   }
 
   @override
@@ -46,15 +73,31 @@ class _ProductListScreenState extends State<ProductListScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search',
                 prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          Provider.of<ProductListProvider>(context,
+                                  listen: false)
+                              .getProductsByCategory(widget.categoryId,
+                                  refresh: true);
+                        },
+                      )
+                    : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
               onSubmitted: (value) {
-                // Implement search functionality
+                if (value.isNotEmpty) {
+                  Provider.of<ProductListProvider>(context, listen: false)
+                      .searchProducts(value);
+                }
               },
             ),
           ),
@@ -75,31 +118,50 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   return const Center(child: Text('No products found'));
                 }
 
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
-                  itemCount: provider.products.length,
-                  itemBuilder: (context, index) {
-                    final product = provider.products[index];
-                    return ProductItem(
-                      product: product,
-                      onAddToCart: () {
-                        Provider.of<CartProvider>(context, listen: false)
-                            .addToCart(product);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${product.title} added to cart'),
-                            duration: const Duration(seconds: 2),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    await provider.getProductsByCategory(widget.categoryId,
+                        refresh: true);
+                  },
+                  child: GridView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16.0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.75,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: provider.isLoadingMore
+                        ? provider.products.length + 1
+                        : provider.products.length,
+                    itemBuilder: (context, index) {
+                      if (index >= provider.products.length) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
                           ),
                         );
-                      },
-                    );
-                  },
+                      }
+
+                      final product = provider.products[index];
+                      return ProductItem(
+                        product: product,
+                        onAddToCart: () {
+                          Provider.of<CartProvider>(context, listen: false)
+                              .addToCart(product);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${product.title} added to cart'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 );
               },
             ),

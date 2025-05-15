@@ -59,7 +59,8 @@ Future<void> init() async {
 
   // Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl());
-  sl.registerLazySingleton(() => ApiClient(client: sl()));
+
+  sl.registerLazySingleton<ApiClient>(() => ApiClient());
 
   // External
   final sharedPreferences = await SharedPreferences.getInstance();

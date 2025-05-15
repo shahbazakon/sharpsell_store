@@ -170,7 +170,125 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              // Navigate to all categories
+                              // Show all categories in a dialog
+                              showDialog(
+                                context: context,
+                                builder: (context) => Dialog(
+                                  child: Consumer<CategoryProvider>(
+                                    builder: (context, categoryProvider, _) {
+                                      if (categoryProvider.isLoading) {
+                                        return const SizedBox(
+                                          height: 300,
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        );
+                                      }
+
+                                      if (categoryProvider.error.isNotEmpty) {
+                                        return SizedBox(
+                                          height: 300,
+                                          child: Center(
+                                              child: Text(
+                                                  'Error: ${categoryProvider.error}')),
+                                        );
+                                      }
+
+                                      return Container(
+                                        padding: const EdgeInsets.all(16.0),
+                                        constraints: const BoxConstraints(
+                                            maxWidth: 500, maxHeight: 500),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Text(
+                                              'All Categories',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Expanded(
+                                              child: GridView.builder(
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 2,
+                                                  childAspectRatio: 1.5,
+                                                  crossAxisSpacing: 10,
+                                                  mainAxisSpacing: 10,
+                                                ),
+                                                itemCount: categoryProvider
+                                                    .categories.length,
+                                                itemBuilder: (context, index) {
+                                                  final category =
+                                                      categoryProvider
+                                                          .categories[index];
+                                                  return InkWell(
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ProductListScreen(
+                                                            categoryId:
+                                                                category.id,
+                                                            categoryName:
+                                                                category.name,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Card(
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                          image:
+                                                              DecorationImage(
+                                                            image: NetworkImage(
+                                                                category.image),
+                                                            fit: BoxFit.cover,
+                                                            colorFilter:
+                                                                ColorFilter
+                                                                    .mode(
+                                                              Colors.black
+                                                                  .withOpacity(
+                                                                      0.3),
+                                                              BlendMode.darken,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: Text(
+                                                          category.name,
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 16,
+                                                          ),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
                             },
                             child: const Text('View All'),
                           ),

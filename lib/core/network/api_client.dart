@@ -1,87 +1,67 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class ApiClient {
-  final http.Client client;
-  final String baseUrl = 'https://api.escuelajs.co/api/v1';
+  late final Dio _dio;
 
-  ApiClient({required this.client});
+  ApiClient() {
+    _dio = Dio(BaseOptions(
+      baseUrl: 'https://api.escuelajs.co/api/v1/',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      // contentType: 'application/json',
+    ));
+
+    _dio.interceptors.add(PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      compact: true,
+    ));
+  }
 
   Future<dynamic> get(String endpoint) async {
     try {
-      final response = await client.get(
-        Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to load data: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Network error: $e');
+      final response = await _dio.get(endpoint);
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
     }
   }
 
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
     try {
-      final response = await client.post(
-        Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(data),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to post data: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Network error: $e');
+      final response = await _dio.post(endpoint, data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
     }
   }
 
   Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
     try {
-      final response = await client.put(
-        Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(data),
-      );
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to update data: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Network error: $e');
+      final response = await _dio.put(endpoint, data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
     }
   }
 
   Future<dynamic> delete(String endpoint) async {
     try {
-      final response = await client.delete(
-        Uri.parse('$baseUrl/$endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await _dio.delete(endpoint);
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    }
+  }
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to delete data: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Network error: $e');
+  String _handleDioError(DioException e) {
+    if (e.response != null) {
+      return 'Error ${e.response?.statusCode}: ${e.response?.statusMessage}';
+    } else {
+      return 'Network error: ${e.message}';
     }
   }
 }

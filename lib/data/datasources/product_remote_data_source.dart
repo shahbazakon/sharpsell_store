@@ -68,18 +68,29 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> searchProducts(String query) async {
     try {
-      // The API doesn't have a direct search endpoint, so we'll get all products and filter them
-      final response = await apiClient.get('products?limit=100');
+      // Use the API's title parameter for searching
+      final response = await apiClient
+          .get('products/?title=${Uri.encodeComponent(query)}&limit=20');
       final products = (response as List)
           .map((product) => ProductModel.fromJson(product))
           .toList();
 
-      // Filter products by title or description containing the query
-      return products
-          .where((product) =>
-              product.title.toLowerCase().contains(query.toLowerCase()) ||
-              product.description.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      // If the API search returns no results, try a more comprehensive search
+      if (products.isEmpty) {
+        final allResponse = await apiClient.get('products?limit=100');
+        final allProducts = (allResponse as List)
+            .map((product) => ProductModel.fromJson(product))
+            .toList();
+
+        // Filter products by title or description containing the query
+        return allProducts
+            .where((product) =>
+                product.title.toLowerCase().contains(query.toLowerCase()) ||
+                product.description.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+
+      return products;
     } catch (e) {
       throw Exception('Failed to search products: $e');
     }
