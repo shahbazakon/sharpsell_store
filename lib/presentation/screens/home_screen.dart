@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../providers/cart_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/product_list_provider.dart';
-import '../providers/cart_provider.dart';
 import '../widgets/category_item.dart';
 import '../widgets/product_item.dart';
 import 'cart_screen.dart';
@@ -46,10 +47,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      final productProvider =
-          Provider.of<ProductListProvider>(context, listen: false);
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final productProvider = Provider.of<ProductListProvider>(context, listen: false);
       if (!productProvider.isLoading &&
           !productProvider.isLoadingMore &&
           productProvider.hasMoreData) {
@@ -62,13 +61,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sharpsell Store'),
+        title: const Text(
+          'Sharpsell Store',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: false,
         actions: [
           Stack(
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.shopping_cart),
+                icon: const Icon(Icons.add_shopping_cart_rounded),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -113,10 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, productListProvider, child) {
           return RefreshIndicator(
             onRefresh: () async {
-              final categoryProvider =
-                  Provider.of<CategoryProvider>(context, listen: false);
-              final productProvider =
-                  Provider.of<ProductListProvider>(context, listen: false);
+              final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+              final productProvider = Provider.of<ProductListProvider>(context, listen: false);
 
               await categoryProvider.getCategories(refresh: true);
               await productProvider.getProducts(refresh: true);
@@ -134,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'Search',
+                        contentPadding: EdgeInsets.zero,
                         prefixIcon: const Icon(Icons.search),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
@@ -159,17 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Categories section
                     if (productListProvider.searchQuery.isEmpty) ...[
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Categories >',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
+                          InkWell(
+                            onTap: () {
                               // Show all categories in a dialog
                               showDialog(
                                 context: context,
@@ -179,9 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       if (categoryProvider.isLoading) {
                                         return const SizedBox(
                                           height: 300,
-                                          child: Center(
-                                              child:
-                                                  CircularProgressIndicator()),
+                                          child: Center(child: CircularProgressIndicator()),
                                         );
                                       }
 
@@ -189,15 +185,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                         return SizedBox(
                                           height: 300,
                                           child: Center(
-                                              child: Text(
-                                                  'Error: ${categoryProvider.error}')),
+                                              child: Text('Error: ${categoryProvider.error}')),
                                         );
                                       }
 
                                       return Container(
                                         padding: const EdgeInsets.all(16.0),
-                                        constraints: const BoxConstraints(
-                                            maxWidth: 500, maxHeight: 500),
+                                        constraints:
+                                            const BoxConstraints(maxWidth: 500, maxHeight: 500),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -218,63 +213,45 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   crossAxisSpacing: 10,
                                                   mainAxisSpacing: 10,
                                                 ),
-                                                itemCount: categoryProvider
-                                                    .categories.length,
+                                                itemCount: categoryProvider.categories.length,
                                                 itemBuilder: (context, index) {
                                                   final category =
-                                                      categoryProvider
-                                                          .categories[index];
+                                                      categoryProvider.categories[index];
                                                   return InkWell(
                                                     onTap: () {
                                                       Navigator.pop(context);
                                                       Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              ProductListScreen(
-                                                            categoryId:
-                                                                category.id,
-                                                            categoryName:
-                                                                category.name,
+                                                          builder: (context) => ProductListScreen(
+                                                            categoryId: category.id,
+                                                            categoryName: category.name,
                                                           ),
                                                         ),
                                                       );
                                                     },
                                                     child: Card(
                                                       child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          image:
-                                                              DecorationImage(
-                                                            image: NetworkImage(
-                                                                category.image),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(8),
+                                                          image: DecorationImage(
+                                                            image: NetworkImage(category.image),
                                                             fit: BoxFit.cover,
-                                                            colorFilter:
-                                                                ColorFilter
-                                                                    .mode(
-                                                              Colors.black
-                                                                  .withOpacity(
-                                                                      0.3),
+                                                            colorFilter: ColorFilter.mode(
+                                                              Colors.black.withOpacity(0.3),
                                                               BlendMode.darken,
                                                             ),
                                                           ),
                                                         ),
-                                                        alignment:
-                                                            Alignment.center,
+                                                        alignment: Alignment.center,
                                                         child: Text(
                                                           category.name,
-                                                          style:
-                                                              const TextStyle(
+                                                          style: const TextStyle(
                                                             color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.bold,
+                                                            fontWeight: FontWeight.bold,
                                                             fontSize: 16,
                                                           ),
-                                                          textAlign:
-                                                              TextAlign.center,
+                                                          textAlign: TextAlign.center,
                                                         ),
                                                       ),
                                                     ),
@@ -290,8 +267,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               );
                             },
-                            child: const Text('View All'),
+                            child: const Text(
+                              'Categories',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                            ),
                           ),
+                          const SizedBox(width: 5),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 15,
+                          )
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -302,27 +288,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Consumer<CategoryProvider>(
                           builder: (context, categoryProvider, child) {
                             if (categoryProvider.isLoading) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
+                              return const Center(child: CircularProgressIndicator());
                             }
 
                             if (categoryProvider.error.isNotEmpty) {
-                              return Center(
-                                  child:
-                                      Text('Error: ${categoryProvider.error}'));
+                              return Center(child: Text('Error: ${categoryProvider.error}'));
                             }
 
                             if (categoryProvider.categories.isEmpty) {
-                              return const Center(
-                                  child: Text('No categories found'));
+                              return const Center(child: Text('No categories found'));
                             }
 
                             return ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: categoryProvider.categories.length,
                               itemBuilder: (context, index) {
-                                final category =
-                                    categoryProvider.categories[index];
+                                final category = categoryProvider.categories[index];
                                 return CategoryItem(
                                   category: category,
                                   onTap: () {
@@ -374,10 +355,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.75,
+                          childAspectRatio: 0.7,
                           crossAxisSpacing: 10,
                           mainAxisSpacing: 10,
                         ),
@@ -387,12 +367,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           return ProductItem(
                             product: product,
                             onAddToCart: () {
-                              Provider.of<CartProvider>(context, listen: false)
-                                  .addToCart(product);
+                              Provider.of<CartProvider>(context, listen: false).addToCart(product);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content:
-                                      Text('${product.title} added to cart'),
+                                  content: Text('${product.title} added to cart'),
                                   duration: const Duration(seconds: 2),
                                 ),
                               );
