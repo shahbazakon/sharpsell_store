@@ -1,74 +1,122 @@
-# Sharpsell Store
 
-A Flutter e-commerce application with clean architecture.
+# 🛍️ Sharpsell Store
 
-## Features
+**Sharpsell Store** is a fully functional e-commerce mobile application built with **Flutter** using **Clean Architecture** principles. This project demonstrates a modular approach to building scalable and maintainable Flutter applications, focusing on core e-commerce features.
 
-- Home screen with search bar, category carousel, and product grid
-- Product detail screen with image, description, price, and related products
-- Cart screen with item list, bill details breakdown, and payment button
-- Product list screen filtered by category
+---
 
-## Architecture
+## 🚀 Features
 
-This project follows clean architecture principles with the following layers:
+* 🏠 **Home Screen**
 
-- **Domain**: Contains business logic, entities, and repository interfaces
-- **Data**: Implements repositories and contains data sources (remote API and local storage)
-- **Presentation**: Contains UI components, screens, and state management
+  * Search bar
+  * Category carousel
+  * Featured product grid
 
-## Getting Started
+* 📦 **Product Detail Screen**
 
-### Prerequisites
+  * Product images
+  * Descriptions
+  * Pricing
+  * Related products
 
-- Flutter SDK (3.3.0 or higher)
-- Android Studio / VS Code
-- Android Emulator / iOS Simulator
+* 🛒 **Cart Screen**
 
-### Installation
+  * Cart items list
+  * Price breakdown and total
+  * Payment button
 
-1. Clone the repository:
-```
-git clone https://github.com/yourusername/sharpsell_store.git
-```
+* 📂 **Product List by Category**
 
-2. Navigate to the project directory:
-```
-cd sharpsell_store
-```
+  * Browse products filtered by category
 
-3. Install dependencies:
-```
-flutter pub get
-```
+---
 
-4. Run the app:
-```
-flutter run
-```
+## 🧱 Architecture
 
-## Running on Android
+The project adheres to **Clean Architecture**, separating responsibilities into distinct layers:
+
+* **Domain Layer**
+
+  * Business logic
+  * Entity definitions
+  * Abstract repository contracts
+
+* **Data Layer**
+
+  * Repository implementations
+  * Data sources (Remote API / Local Storage)
+
+* **Presentation Layer**
+
+  * UI components and screens
+  * State management and user interaction
+
+---
+
+## 🛠️ Getting Started
+
+### ✅ Prerequisites
+
+* Flutter SDK **(>= 3.3.0)**
+* Android Studio or Visual Studio Code
+* Android Emulator / iOS Simulator
+
+### 📥 Installation Steps
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/yourusername/sharpsell_store.git
+   ```
+
+2. **Navigate to the project directory:**
+
+   ```bash
+   cd sharpsell_store
+   ```
+
+3. **Install the dependencies:**
+
+   ```bash
+   flutter pub get
+   ```
+
+4. **Run the app:**
+
+   ```bash
+   flutter run
+   ```
+
+---
+
+## 📱 Running on Android
 
 To run the app on an Android emulator:
 
 1. Start your Android emulator
 2. Run the following command:
-```
-flutter run -d <emulator-id>
-```
 
-## Dependencies
+   ```bash
+   flutter run -d <emulator-id>
+   ```
 
-- **Provider**: State management
-- **http**: Network requests
-- **shared_preferences**: Local storage
-- **cached_network_image**: Image caching
-- **get_it**: Dependency injection
+---
 
-## API Integration
+## 📦 Dependencies
 
-The app uses [FakeStoreAPI](https://fakestoreapi.com/) for demo purposes. In a production environment, you would replace this with your actual API endpoints.
+* [`provider`](https://pub.dev/packages/provider) – State management
+* [`http`](https://pub.dev/packages/http) – REST API communication
+* [`shared_preferences`](https://pub.dev/packages/shared_preferences) – Local storage
+* [`cached_network_image`](https://pub.dev/packages/cached_network_image) – Efficient image loading and caching
+* [`get_it`](https://pub.dev/packages/get_it) – Dependency injection
 
-## License
+---
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 🌐 API Integration
+
+The app currently uses [FakeStoreAPI](https://fakestoreapi.com/) for mock data during development. In a production environment, replace this with real API endpoints and secure authorization mechanisms.
+
+---
+
+
