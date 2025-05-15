@@ -1,7 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/cart_provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -87,12 +88,13 @@ class _CartScreenState extends State<CartScreen> {
                         child: Row(
                           children: [
                             // Product image
-                            SizedBox(
-                              width: 60,
-                              height: 60,
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
                               child: CachedNetworkImage(
+                                width: 65,
+                                height: 65,
                                 imageUrl: item.imageUrl,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.cover,
                                 placeholder: (context, url) => Container(
                                   color: Colors.grey.shade200,
                                   child: const Center(
@@ -139,27 +141,23 @@ class _CartScreenState extends State<CartScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.remove),
                                   onPressed: item.quantity > 1
-                                      ? () =>
-                                          cartProvider.updateCartItemQuantity(
-                                              item.id, item.quantity - 1)
+                                      ? () => cartProvider.updateCartItemQuantity(
+                                          item.id, item.quantity - 1)
                                       : null,
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Text(
                                     '${item.quantity}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.add),
-                                  onPressed: () =>
-                                      cartProvider.updateCartItemQuantity(
-                                          item.id, item.quantity + 1),
+                                  onPressed: () => cartProvider.updateCartItemQuantity(
+                                      item.id, item.quantity + 1),
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                 ),
@@ -169,7 +167,7 @@ class _CartScreenState extends State<CartScreen> {
 
                             // Remove button
                             IconButton(
-                              icon: const Icon(Icons.delete_outline),
+                              icon: const Icon(Icons.cancel_outlined),
                               color: Colors.red,
                               onPressed: () {
                                 cartProvider.removeFromCart(item.id);
@@ -188,6 +186,10 @@ class _CartScreenState extends State<CartScreen> {
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.3),
@@ -282,8 +284,7 @@ class _CartScreenState extends State<CartScreen> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(16.0),
                                         child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             const Center(
                                               child: Text(
@@ -308,54 +309,40 @@ class _CartScreenState extends State<CartScreen> {
                                             Container(
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color:
-                                                        Colors.grey.shade300),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                                border: Border.all(color: Colors.grey.shade300),
+                                                borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   const Text(
                                                     'John Doe',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                                                    style: TextStyle(fontWeight: FontWeight.bold),
                                                   ),
                                                   const SizedBox(height: 4),
-                                                  const Text(
-                                                      '123 Main St, Apt 4'),
-                                                  const Text(
-                                                      'New York, NY 10001'),
+                                                  const Text('123 Main St, Apt 4'),
+                                                  const Text('New York, NY 10001'),
                                                   const SizedBox(height: 4),
-                                                  const Text(
-                                                      'Phone: (555) 123-4567'),
+                                                  const Text('Phone: (555) 123-4567'),
                                                   const SizedBox(height: 8),
                                                   TextButton.icon(
                                                     onPressed: () {
                                                       // Show address edit dialog
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
+                                                      ScaffoldMessenger.of(context).showSnackBar(
                                                         const SnackBar(
                                                           content: Text(
                                                               'Address editing not implemented in this demo'),
-                                                          duration: Duration(
-                                                              seconds: 2),
+                                                          duration: Duration(seconds: 2),
                                                         ),
                                                       );
                                                     },
-                                                    icon: const Icon(Icons.edit,
-                                                        size: 16),
+                                                    icon: const Icon(Icons.edit, size: 16),
                                                     label: const Text('Edit'),
                                                     style: TextButton.styleFrom(
                                                       padding: EdgeInsets.zero,
                                                       minimumSize: Size.zero,
                                                       tapTargetSize:
-                                                          MaterialTapTargetSize
-                                                              .shrinkWrap,
+                                                          MaterialTapTargetSize.shrinkWrap,
                                                     ),
                                                   ),
                                                 ],
@@ -375,11 +362,8 @@ class _CartScreenState extends State<CartScreen> {
                                             Container(
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color:
-                                                        Colors.grey.shade300),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                                border: Border.all(color: Colors.grey.shade300),
+                                                borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Column(
                                                 children: [
@@ -388,8 +372,7 @@ class _CartScreenState extends State<CartScreen> {
                                                       children: [
                                                         Icon(Icons.credit_card),
                                                         SizedBox(width: 8),
-                                                        Text(
-                                                            'Credit/Debit Card'),
+                                                        Text('Credit/Debit Card'),
                                                       ],
                                                     ),
                                                     value: 'card',
@@ -400,8 +383,7 @@ class _CartScreenState extends State<CartScreen> {
                                                   RadioListTile(
                                                     title: const Row(
                                                       children: [
-                                                        Icon(Icons
-                                                            .account_balance),
+                                                        Icon(Icons.account_balance),
                                                         SizedBox(width: 8),
                                                         Text('Bank Transfer'),
                                                       ],
@@ -416,8 +398,7 @@ class _CartScreenState extends State<CartScreen> {
                                                       children: [
                                                         Icon(Icons.money),
                                                         SizedBox(width: 8),
-                                                        Text(
-                                                            'Cash on Delivery'),
+                                                        Text('Cash on Delivery'),
                                                       ],
                                                     ),
                                                     value: 'cash',
@@ -441,18 +422,14 @@ class _CartScreenState extends State<CartScreen> {
                                             Container(
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color:
-                                                        Colors.grey.shade300),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                                border: Border.all(color: Colors.grey.shade300),
+                                                borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Column(
                                                 children: [
                                                   Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                        MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       const Text('Item Total'),
                                                       Text(
@@ -463,8 +440,7 @@ class _CartScreenState extends State<CartScreen> {
                                                   const SizedBox(height: 8),
                                                   const Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                        MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Text('Delivery charge'),
                                                       Text('\$5.00'),
@@ -473,8 +449,7 @@ class _CartScreenState extends State<CartScreen> {
                                                   const SizedBox(height: 8),
                                                   const Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                        MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Text('GST and Charges'),
                                                       Text('\$1.40'),
@@ -483,22 +458,17 @@ class _CartScreenState extends State<CartScreen> {
                                                   const Divider(),
                                                   Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                        MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       const Text(
                                                         'Total',
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                        style:
+                                                            TextStyle(fontWeight: FontWeight.bold),
                                                       ),
                                                       Text(
                                                         '\$${(cartProvider.totalPrice + 5.00 + 1.40).toStringAsFixed(2)}',
                                                         style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                            fontWeight: FontWeight.bold),
                                                       ),
                                                     ],
                                                   ),
@@ -518,41 +488,31 @@ class _CartScreenState extends State<CartScreen> {
                                                   showDialog(
                                                     context: context,
                                                     barrierDismissible: false,
-                                                    builder: (context) =>
-                                                        const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
+                                                    builder: (context) => const Center(
+                                                      child: CircularProgressIndicator(),
                                                     ),
                                                   );
 
                                                   // Simulate payment processing
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          seconds: 2), () {
-                                                    Navigator.pop(
-                                                        context); // Close loading dialog
+                                                  Future.delayed(const Duration(seconds: 2), () {
+                                                    Navigator.pop(context); // Close loading dialog
 
                                                     // Show success dialog
                                                     showDialog(
                                                       context: context,
-                                                      builder: (context) =>
-                                                          AlertDialog(
-                                                        title: const Text(
-                                                            'Order Placed!'),
+                                                      builder: (context) => AlertDialog(
+                                                        title: const Text('Order Placed!'),
                                                         content: const Text(
                                                             'Your order has been placed successfully. You will receive a confirmation email shortly.'),
                                                         actions: [
                                                           TextButton(
                                                             onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                              cartProvider
-                                                                  .clearCart();
+                                                              Navigator.pop(context);
+                                                              cartProvider.clearCart();
                                                               Navigator.pop(
                                                                   context); // Go back to previous screen
                                                             },
-                                                            child: const Text(
-                                                                'OK'),
+                                                            child: const Text('OK'),
                                                           ),
                                                         ],
                                                       ),
@@ -562,11 +522,9 @@ class _CartScreenState extends State<CartScreen> {
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.black,
                                                   foregroundColor: Colors.white,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(vertical: 16),
+                                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                                 ),
-                                                child:
-                                                    const Text('Place Order'),
+                                                child: const Text('Place Order'),
                                               ),
                                             ),
                                           ],

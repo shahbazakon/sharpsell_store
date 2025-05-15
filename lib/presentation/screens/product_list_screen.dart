@@ -45,10 +45,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      final productProvider =
-          Provider.of<ProductListProvider>(context, listen: false);
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final productProvider = Provider.of<ProductListProvider>(context, listen: false);
       if (!productProvider.isLoading &&
           !productProvider.isLoadingMore &&
           productProvider.hasMoreData) {
@@ -75,6 +73,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
+                contentPadding: EdgeInsets.zero,
                 hintText: 'Search',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
@@ -82,10 +81,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          Provider.of<ProductListProvider>(context,
-                                  listen: false)
-                              .getProductsByCategory(widget.categoryId,
-                                  refresh: true);
+                          Provider.of<ProductListProvider>(context, listen: false)
+                              .getProductsByCategory(widget.categoryId, refresh: true);
                         },
                       )
                     : null,
@@ -95,8 +92,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               ),
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
-                  Provider.of<ProductListProvider>(context, listen: false)
-                      .searchProducts(value);
+                  Provider.of<ProductListProvider>(context, listen: false).searchProducts(value);
                 }
               },
             ),
@@ -120,16 +116,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
                 return RefreshIndicator(
                   onRefresh: () async {
-                    await provider.getProductsByCategory(widget.categoryId,
-                        refresh: true);
+                    await provider.getProductsByCategory(widget.categoryId, refresh: true);
                   },
                   child: GridView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(16.0),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.75,
+                      childAspectRatio: 0.7,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                     ),
@@ -150,8 +144,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       return ProductItem(
                         product: product,
                         onAddToCart: () {
-                          Provider.of<CartProvider>(context, listen: false)
-                              .addToCart(product);
+                          Provider.of<CartProvider>(context, listen: false).addToCart(product);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('${product.title} added to cart'),
