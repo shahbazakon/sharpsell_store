@@ -8,6 +8,12 @@
       <excludeFolder url="file://$MODULE_DIR$/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/sharpsell_store/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/sharpsell_store/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/sharpsell_store/build" />
+      <excludeFolder url="file://$MODULE_DIR$/sharpsell_store/sharpsell_store/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/sharpsell_store/sharpsell_store/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/sharpsell_store/sharpsell_store/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
